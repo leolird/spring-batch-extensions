@@ -42,9 +42,12 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
     private InputStream workbookStream;
 
+
+    private boolean useDataFormatter = false;
+
     @Override
     protected Sheet getSheet(final int sheet) {
-        return new PoiSheet(this.workbook.getSheetAt(sheet));
+        return new PoiSheet(this.workbook.getSheetAt(sheet), useDataFormatter);
     }
 
     @Override
@@ -85,4 +88,11 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         this.workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
     }
 
+    public boolean isUseDataFormatter() {
+        return useDataFormatter;
+    }
+
+    public void setUseDataFormatter(boolean useDataFormatter) {
+        this.useDataFormatter = useDataFormatter;
+    }
 }
