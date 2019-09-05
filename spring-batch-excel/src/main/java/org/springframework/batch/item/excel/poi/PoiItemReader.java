@@ -66,8 +66,8 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
         if (workbookStream != null) {
             workbookStream.close();
         }
-        this.workbook=null;
-        this.workbookStream=null;
+        this.workbook = null;
+        this.workbookStream = null;
     }
 
     /**

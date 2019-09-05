@@ -51,6 +51,7 @@ public class DefaultRowSet implements RowSet {
         currentRowIndex++;
         if (currentRowIndex < sheet.getNumberOfRows()) {
             currentRow = sheet.getRow(currentRowIndex);
+            if(currentRow==null){return false;}
             return true;
         }
         return false;

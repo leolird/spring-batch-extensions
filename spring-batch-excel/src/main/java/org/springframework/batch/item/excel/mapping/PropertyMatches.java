@@ -139,7 +139,7 @@ final class PropertyMatches {
      * @param s2 the second String
      * @return the distance value
      */
-    private int calculateStringDistance(String s1, String s2) {
+    protected static  int calculateStringDistance(String s1, String s2) {
         if (s1.length() == 0) {
             return s2.length();
         }

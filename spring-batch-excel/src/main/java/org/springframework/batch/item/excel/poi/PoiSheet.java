@@ -116,6 +116,12 @@ public class PoiSheet implements Sheet {
                 }
             }
         }
+        boolean isBlankLine=true;
+        for (String c : cells)
+        {
+            if(!c.isEmpty()){isBlankLine=false;}
+        }
+        if(isBlankLine){return null;}
         return cells.toArray(new String[cells.size()]);
     }
 

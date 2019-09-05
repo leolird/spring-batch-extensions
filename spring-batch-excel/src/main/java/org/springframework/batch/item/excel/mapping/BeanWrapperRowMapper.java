@@ -73,9 +73,9 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar impl
 
     private ConcurrentMap<DistanceHolder, ConcurrentMap<String, String>> propertiesMatched = new ConcurrentHashMap<DistanceHolder, ConcurrentMap<String, String>>();
 
-    private int distanceLimit = 5;
+    private int distanceLimit = 3;
 
-    private boolean strict = true;
+    private boolean strict = false;
 
     /*
      * (non-Javadoc)
@@ -244,14 +244,29 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar impl
 
             if (name != null) {
                 if (matches.containsValue(name)) {
-                    throw new NotWritablePropertyException(
-                            cls,
-                            name,
-                            "Duplicate match with distance <= "
-                                    + distanceLimit
-                                    + " found for this property in input keys: "
-                                    + keys
-                                    + ". (Consider reducing the distance limit or changing the input key names to get a closer match.)");
+                    String oldKey = getKeyByPropertyName(matches, name);
+                    int oldKeyDistance = PropertyMatches.calculateStringDistance(oldKey, name);
+                    int keyDistance = PropertyMatches.calculateStringDistance(key, name);
+
+                    if (keyDistance == oldKeyDistance) {
+                        throw new NotWritablePropertyException(
+                                cls,
+                                name,
+                                "Duplicate match with distance <= "
+                                        + distanceLimit
+                                        + " found for this property in input keys: "
+                                        + keys
+                                        + ". (Consider reducing the distance limit or changing the input key names to get a closer match.)");
+
+                    } else if (keyDistance < oldKeyDistance) {
+
+                        // Remove old key mappings in matches and properties
+                        matches.remove(oldKey);
+                        properties.remove(name);
+
+                    } else {
+                        continue;
+                    }
                 }
                 matches.put(key, name);
                 switchPropertyNames(properties, key, name);
@@ -260,6 +275,19 @@ public class BeanWrapperRowMapper<T> extends DefaultPropertyEditorRegistrar impl
 
         propertiesMatched.replace(distanceKey, new ConcurrentHashMap<String, String>(matches));
         return properties;
+    }
+
+    private String getKeyByPropertyName(Map<String, String> matches, String name) {
+
+        for (Map.Entry<String, String> entry : matches.entrySet()) {
+            //Usage of API documented as @since 1.7 +
+            //if (Objects.equals(name, entry.getValue())) {
+            if((name == entry.getValue()) || (name != null && name.equals(entry.getValue()))) {
+                return entry.getKey();
+            }
+        }
+
+        return null;
     }
 
     private String findPropertyName(Object bean, String key) {
